@@ -1,14 +1,15 @@
 /// Module: airdrop_utils
 /// Contains internal helper functions for the airdrop system.
-module mesh_smart_contracts::airdrop_utils;
+module airdrop::airdrop_utils;
 
-use mesh_smart_contracts::airdrop_core::Airdrop;
+use airdrop::airdrop_core::Airdrop;
 
 // ====== Internal Functions ======
 
 /// Checks if a given address has already claimed for a specific epoch.
 public(package) fun has_claimed(airdrop: &Airdrop, user: address, epoch_id: u64): bool {
     // Logic to check the claimed table
+    true
 }
 
 /// Marks an address as having claimed for a specific epoch.

@@ -1,6 +1,6 @@
 /// Module: airdrop_core
 /// Defines the core data structures and events for the airdrop system.
-module mesh_smart_contracts::airdrop_core;
+module airdrop::airdrop_core;
 
 use std::string::String;
 use sui::balance::Balance;

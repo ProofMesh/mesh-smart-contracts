@@ -1,8 +1,8 @@
 /// Module: airdrop_claim
 /// Handles all claiming logic for both individual users and batched relayer transactions.
-module mesh_smart_contracts::airdrop_claim;
+module airdrop::airdrop_claim;
 
-use mesh_smart_contracts::airdrop_core::Airdrop;
+use airdrop::airdrop_core::Airdrop;
 
 const EProofVerificationFailed: u64 = 0;
 const EAlreadyClaimed: u64 = 1;
