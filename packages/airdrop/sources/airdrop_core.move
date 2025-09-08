@@ -2,42 +2,68 @@
 /// Defines the core data structures and events for the airdrop system.
 module airdrop::airdrop_core;
 
+use sui::object::ID;
 use std::string::String;
-use sui::balance::Balance;
-use sui::table;
-use sui::bag;
+use sui::balance::{Self, Balance};
 use sui::sui::SUI;
 
 // ====== Structs ======
-/// The main Airdrop state object.
-public struct Airdrop has key {
+
+// --- Capability Object ---
+/// Possession of this object grants admin rights to the Community it points to.
+/// This can be transferred or sold independently of the Community itself.
+public struct CommunityCap has key, store {
     id: UID,
+    community_id: ID,
+}
+
+/// Airdrop Configuration (Pre-Publish)
+/// An created but not-yet-published airdrop.
+/// Held by the admin until the Merkle root is ready.
+public struct AirdropConfig has key {
+    id: UID,
+    community_id: ID,
+    rules_cid: String, // Walrus CID for rules.json
     vault: Balance<SUI>,
-    admin: address,
-    claimed: table::Table<address, bag::Bag>,
-    current_epoch: option::Option<EpochInfo>,
-}
-
-/// Information about a specific airdrop distribution event.
-public struct EpochInfo has store, drop {
-    merkle_root: vector<u8>,
-    manifest_cid: String,
     deadline_ms: u64,
     epoch_id: u64,
 }
 
-// ====== Events ======
+/// Active Airdrop (Published)
+/// An airdrop that is active and claimable.
+/// Stored in the Community object.
+public struct ActiveAirdrop has key, store {
+    id: UID,
+    merkle_root: vector<u8>, 
+    rules_cid: String,
+    vault: Balance<SUI>,
+    deadline_ms: u64,
+    epoch_id: u64,
+    total_claimed: u64,
+}
 
-/// Event emitted when a new epoch is published.
-public struct EpochPublishedEvent has copy, drop {
+// --- Events ---
+/// Emitted when an airdrop is created and funded.
+public struct AirdropCreatedEvent has copy, drop {
+    community_id: ID,
+    config_id: ID,
+    rules_cid: String,
+    total_amount: u64,
+    deadline_ms: u64,
+    epoch_id: u64,
+}
+
+/// Emitted when an airdrop is published and becomes active.
+public struct AirdropPublishedEvent has copy, drop {
+    community_id: ID,
     epoch_id: u64,
     merkle_root: vector<u8>,
-    manifest_cid: String,
-    deadline_ms: u64,
+    rules_cid: String,
 }
 
 /// Event emitted when a user successfully claims tokens.
 public struct ClaimedEvent has copy, drop {
+    community_id: ID,
     epoch_id: u64,
     recipient: address,
     amount: u64,
@@ -45,7 +71,8 @@ public struct ClaimedEvent has copy, drop {
 
 /// Event emitted when unclaimed tokens are swept.
 public struct SweptEvent has copy, drop {
+    community_id: ID,
     epoch_id: u64,
     amount: u64,
-    recipient: address,
+    swept_to: address,
 }
